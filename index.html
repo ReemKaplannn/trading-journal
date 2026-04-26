@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>יומן מסחר</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">📈</span>
+        <span class="logo-text">יומן מסחר</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-room="trades">
+          <span class="nav-icon">📋</span>
+          <span>יומן עסקאות</span>
+        </button>
+        <button class="nav-item" data-room="portfolio">
+          <span class="nav-icon">💼</span>
+          <span>תיק מסחר</span>
+        </button>
+        <button class="nav-item" data-room="lessons">
+          <span class="nav-icon">🎯</span>
+          <span>לקחים חודשיים</span>
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="btn-sidebar-action" onclick="exportJSON()">
+          <span>⬇</span> ייצוא JSON
+        </button>
+        <label class="btn-sidebar-action">
+          <span>⬆</span> ייבוא JSON
+          <input type="file" accept=".json" onchange="handleImport(event)" hidden>
+        </label>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- ===== ROOM 1: TRADES ===== -->
+      <div id="room-trades" class="room active">
+        <div class="room-header">
+          <h1>יומן עסקאות</h1>
+          <button class="btn-primary" onclick="openTradeModal()">+ עסקה חדשה</button>
+        </div>
+
+        <div class="trades-filters">
+          <button class="filter-btn active" data-filter="all" onclick="setTradesFilter('all')">הכל</button>
+          <button class="filter-btn" data-filter="open" onclick="setTradesFilter('open')">פתוחות 🟢</button>
+          <button class="filter-btn" data-filter="closed" onclick="setTradesFilter('closed')">סגורות ⚫</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="trades-table" id="trades-table">
+            <thead>
+              <tr>
+                <th class="sortable" onclick="sortTrades('ticker')"><span>טיקר</span><span class="sort-icon">↕</span></th>
+                <th class="sortable" onclick="sortTrades('sector')"><span>סקטור</span><span class="sort-icon">↕</span></th>
+                <th class="sortable" onclick="sortTrades('entryDate')"><span>תאריך כניסה</span><span class="sort-icon">↕</span></th>
+                <th class="sortable" onclick="sortTrades('entryPrice')"><span>מחיר כניסה</span><span class="sort-icon">↕</span></th>
+                <th class="sortable" onclick="sortTrades('entryAmount')"><span>סכום ($)</span><span class="sort-icon">↕</span></th>
+                <th><span>Stop Loss</span></th>
+                <th><span>סיבת כניסה</span></th>
+                <th class="sortable" onclick="sortTrades('exitDate')"><span>תאריך יציאה</span><span class="sort-icon">↕</span></th>
+                <th class="sortable" onclick="sortTrades('exitPrice')"><span>מחיר יציאה</span><span class="sort-icon">↕</span></th>
+                <th class="sortable" onclick="sortTrades('returnPct')"><span>תשואה %</span><span class="sort-icon">↕</span></th>
+                <th><span>% מהתיק</span></th>
+                <th class="sortable" onclick="sortTrades('status')"><span>סטטוס</span><span class="sort-icon">↕</span></th>
+                <th><span>פעולות</span></th>
+              </tr>
+            </thead>
+            <tbody id="trades-tbody"></tbody>
+          </table>
+        </div>
+
+        <div id="trades-empty" class="empty-state" style="display:none">
+          <div class="empty-icon">📊</div>
+          <p>אין עסקאות עדיין</p>
+          <p class="empty-sub">לחץ "+ עסקה חדשה" כדי להתחיל לתעד את המסחר שלך</p>
+        </div>
+      </div>
+
+      <!-- ===== ROOM 2: PORTFOLIO ===== -->
+      <div id="room-portfolio" class="room">
+        <div class="room-header">
+          <h1>תיק מסחר</h1>
+        </div>
+
+        <div class="portfolio-top-grid">
+          <div class="card">
+            <h3>גודל תיק כולל</h3>
+            <div class="portfolio-size-row">
+              <span class="currency-symbol">$</span>
+              <input
+                type="number"
+                id="portfolio-size-input"
+                class="portfolio-size-field"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                oninput="updatePortfolioSize(this.value)"
+              >
+            </div>
+          </div>
+          <div class="card stats-card">
+            <div class="stat-row">
+              <span class="stat-label">מושקע כעת</span>
+              <span class="stat-value" id="stat-invested">$0.00</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">מזומן זמין</span>
+              <span class="stat-value" id="stat-cash">$0.00</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">P&amp;L לא ממומש</span>
+              <span class="stat-value" id="stat-unrealized">$0.00</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">% מושקע</span>
+              <span class="stat-value" id="stat-invested-pct">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="portfolio-bottom-grid">
+          <div class="card">
+            <h3>עסקאות פתוחות</h3>
+            <div id="open-trades-list">
+              <p class="empty-sub" style="text-align:center;padding:1.5rem 0;">אין עסקאות פתוחות</p>
+            </div>
+          </div>
+          <div class="card">
+            <h3>חלוקת תיק</h3>
+            <div class="chart-wrapper">
+              <canvas id="portfolio-chart"></canvas>
+              <p id="chart-empty-msg" class="empty-sub" style="display:none;text-align:center;">אין נתונים לתצוגה</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ROOM 3: LESSONS ===== -->
+      <div id="room-lessons" class="room">
+        <div class="room-header">
+          <h1>לקחים חודשיים</h1>
+        </div>
+
+        <!-- Auto Analysis -->
+        <div class="card">
+          <h3>🔍 ניתוח אוטומטי</h3>
+          <div id="auto-analysis"></div>
+        </div>
+
+        <!-- Personal Lessons -->
+        <div class="card">
+          <div class="lessons-header-row">
+            <h3>📝 לקחים אישיים</h3>
+            <button class="btn-primary" onclick="openLessonModal()">+ לקח חדש</button>
+          </div>
+          <div id="lessons-list"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ===== TRADE MODAL ===== -->
+  <div id="trade-modal" class="modal-overlay" onclick="if(event.target===this)closeTradeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="trade-modal-title">עסקה חדשה</h2>
+        <button class="modal-close" onclick="closeTradeModal()" aria-label="סגור">&times;</button>
+      </div>
+      <form id="trade-form" onsubmit="saveTradeForm(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="f-ticker">טיקר *</label>
+            <input type="text" id="f-ticker" required placeholder="AAPL" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="form-group">
+            <label for="f-sector">סקטור</label>
+            <select id="f-sector">
+              <option value="">— בחר סקטור —</option>
+              <option>טכנולוגיה</option>
+              <option>בריאות</option>
+              <option>פיננסים</option>
+              <option>אנרגיה</option>
+              <option>תעשייה</option>
+              <option>מוצרי צריכה</option>
+              <option>נדל"ן</option>
+              <option>תשתיות</option>
+              <option>חומרים</option>
+              <option>תקשורת</option>
+              <option>קריפטו</option>
+              <option>אחר</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="f-entry-date">תאריך כניסה *</label>
+            <input type="date" id="f-entry-date" required>
+          </div>
+          <div class="form-group">
+            <label for="f-entry-price">מחיר כניסה ($) *</label>
+            <input type="number" id="f-entry-price" required step="0.0001" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="f-entry-amount">סכום כניסה ($) *</label>
+            <input type="number" id="f-entry-amount" required step="0.01" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="f-stop-loss">Stop Loss ($)</label>
+            <input type="number" id="f-stop-loss" step="0.0001" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group form-full">
+            <label for="f-entry-reason">סיבת כניסה</label>
+            <textarea id="f-entry-reason" rows="3" placeholder="תאר את הסיבה לכניסה לעסקה, הסטאפ הטכני, הקטליסט..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="f-exit-date">תאריך יציאה</label>
+            <input type="date" id="f-exit-date">
+          </div>
+          <div class="form-group">
+            <label for="f-exit-price">מחיר יציאה ($)</label>
+            <input type="number" id="f-exit-price" step="0.0001" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group form-full">
+            <label for="f-current-price">מחיר נוכחי ($) <span class="label-note">— לחישוב P&amp;L לא ממומש</span></label>
+            <input type="number" id="f-current-price" step="0.0001" min="0" placeholder="0.00">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeTradeModal()">ביטול</button>
+          <button type="submit" class="btn-primary">שמור עסקה</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== LESSON MODAL ===== -->
+  <div id="lesson-modal" class="modal-overlay" onclick="if(event.target===this)closeLessonModal()">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="lesson-modal-title">לקח חדש</h2>
+        <button class="modal-close" onclick="closeLessonModal()" aria-label="סגור">&times;</button>
+      </div>
+      <form id="lesson-form" onsubmit="saveLessonForm(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="l-date">תאריך *</label>
+            <input type="date" id="l-date" required>
+          </div>
+          <div class="form-group">
+            <label for="l-month">תיוג חודש</label>
+            <input type="month" id="l-month">
+          </div>
+          <div class="form-group form-full">
+            <label for="l-title">כותרת *</label>
+            <input type="text" id="l-title" required placeholder="למשל: לא לחרוג מ-2% ריסק לעסקה">
+          </div>
+          <div class="form-group form-full">
+            <label for="l-content">תוכן</label>
+            <textarea id="l-content" rows="5" placeholder="פרט את הלקח, מה קרה, מה תשנה בעתיד..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeLessonModal()">ביטול</button>
+          <button type="submit" class="btn-primary">שמור לקח</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Dialog -->
+  <div id="confirm-modal" class="modal-overlay" style="display:none">
+    <div class="modal modal-xs">
+      <div class="modal-header">
+        <h2>אישור מחיקה</h2>
+      </div>
+      <div style="padding:1.25rem 1.5rem;">
+        <p id="confirm-msg">האם למחוק?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeConfirmModal()">ביטול</button>
+        <button class="btn-danger" id="confirm-ok-btn">מחק</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/trades.js"></script>
+  <script src="js/portfolio.js"></script>
+  <script src="js/lessons.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
