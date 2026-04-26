@@ -4,7 +4,56 @@ const STORAGE_KEYS = {
   trades:        'tj_trades',
   lessons:       'tj_lessons',
   portfolioSize: 'tj_portfolio_size',
+  seeded:        'tj_seeded_v1',
 };
+
+/* ---------- Initial Seed (runs once per browser) ---------- */
+function seedInitialData() {
+  if (localStorage.getItem(STORAGE_KEYS.seeded)) return;
+
+  const initialTrades = [
+    {
+      id: 'trade_001',
+      ticker: 'MSFT',
+      sector: 'טכנולוגיה',
+      entryDate: '2026-04-16',
+      entryPrice: 409.64,
+      entryAmount: 2458.00,
+      stopLoss: null,
+      entryReason: "תחילת סטייג' 2 + וליום",
+      exitDate: null,
+      exitPrice: null,
+      currentPrice: null,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'trade_002',
+      ticker: 'MSFT',
+      sector: 'טכנולוגיה',
+      entryDate: '2026-04-24',
+      entryPrice: 424.37,
+      entryAmount: 2546.00,
+      stopLoss: null,
+      entryReason: 'חיזוק פוזיציה',
+      exitDate: null,
+      exitPrice: null,
+      currentPrice: null,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+    },
+  ];
+
+  if (!localStorage.getItem(STORAGE_KEYS.trades)) {
+    localStorage.setItem(STORAGE_KEYS.trades, JSON.stringify(initialTrades));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.portfolioSize)) {
+    localStorage.setItem(STORAGE_KEYS.portfolioSize, '9722');
+  }
+  localStorage.setItem(STORAGE_KEYS.seeded, '1');
+}
+
+seedInitialData();
 
 /* ---------- Trades ---------- */
 function getTrades() {
