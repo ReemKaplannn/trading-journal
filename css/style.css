@@ -643,6 +643,131 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .toast.success { border-color: var(--green); color: var(--green); }
 .toast.error   { border-color: var(--red);   color: var(--red); }
 
+/* ===== HISTORY ===== */
+.hist-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.hist-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 1rem 1.25rem;
+}
+
+.hist-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hist-stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.hist-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.hist-sort-select {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.75rem;
+  color: var(--text-primary);
+  font-family: 'Heebo', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+  direction: rtl;
+}
+.hist-sort-select:focus { border-color: var(--accent); }
+
+.hist-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.hist-win  { background: var(--green-dim); color: var(--green); }
+.hist-loss { background: var(--red-dim);   color: var(--red); }
+
+.hist-duration {
+  display: inline-block;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.hist-note-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+}
+
+.hist-note-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.hist-note-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Close trade warning */
+.close-trade-warning {
+  font-size: 0.82rem;
+  color: var(--yellow);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.85rem;
+  line-height: 1.5;
+}
+
+/* Lesson trade badge */
+.lesson-trade-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition);
+  margin-left: 4px;
+}
+.lesson-trade-badge:hover { background: var(--accent); color: #0d1117; }
+
 /* ===== INVESTMENTS ===== */
 .inv-stats-grid {
   display: grid;

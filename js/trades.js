@@ -10,9 +10,14 @@ function renderTrades() {
   let trades = getTrades();
   const portfolioSize = getPortfolioSize();
 
-  // Filter
-  if (tradesFilter === 'open')   trades = trades.filter(t => t.status === 'open');
-  if (tradesFilter === 'closed') trades = trades.filter(t => t.status === 'closed');
+  // Filter — 'all': open + closed within 14 days; 'open': open only
+  const cutoff14 = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  if (tradesFilter === 'all') {
+    trades = trades.filter(t =>
+      t.status === 'open' || (t.exitDate && new Date(t.exitDate) >= cutoff14)
+    );
+  }
+  if (tradesFilter === 'open') trades = trades.filter(t => t.status === 'open');
 
   // Sort
   trades = trades.slice().sort((a, b) => {
@@ -60,18 +65,19 @@ function renderTrades() {
     return `<tr>
       <td><span class="ticker-cell">${escHtml(t.ticker)}</span></td>
       <td>${escHtml(t.sector || '—')}</td>
-      <td>${fmtDate(t.entryDate)}</td>
+      <td>${fmtDatetime(t.entryDate, t.entryTime)}</td>
       <td>$${fmt(t.entryPrice, 2)}</td>
       <td>$${fmt(t.entryAmount, 2)}</td>
       <td>${t.stopLoss ? '$' + fmt(t.stopLoss, 2) : '—'}</td>
       <td class="td-reason">${reason}</td>
-      <td>${fmtDate(t.exitDate)}</td>
+      <td>${fmtDatetime(t.exitDate, t.exitTime)}</td>
       <td>${t.exitPrice ? '$' + fmt(t.exitPrice, 2) : '—'}</td>
       <td class="${retClass}">${ret !== null ? fmtPct(ret) : '—'}</td>
       <td>${portPct !== null ? portPct.toFixed(1) + '%' : '—'}</td>
       <td>${statusBadge}</td>
       <td>
         <div class="action-btns">
+          ${t.status === 'open' ? `<button class="btn-icon btn-icon-close" onclick="openCloseTradeModal('${t.id}')" title="סגור עסקה">🔒</button>` : ''}
           <button class="btn-icon" onclick="openTradeModal('${t.id}')" title="עריכה">✏️</button>
           <button class="btn-icon btn-icon-del" onclick="confirmDeleteTrade('${t.id}')" title="מחיקה">🗑️</button>
         </div>
@@ -121,8 +127,10 @@ function openTradeModal(id) {
     document.getElementById('f-entry-amount').value = trade.entryAmount   || '';
     document.getElementById('f-stop-loss').value    = trade.stopLoss      || '';
     document.getElementById('f-entry-reason').value = trade.entryReason   || '';
-    document.getElementById('f-exit-date').value    = trade.exitDate      || '';
-    document.getElementById('f-exit-price').value   = trade.exitPrice     || '';
+    document.getElementById('f-entry-time').value    = trade.entryTime    || '';
+    document.getElementById('f-exit-date').value     = trade.exitDate     || '';
+    document.getElementById('f-exit-time').value     = trade.exitTime     || '';
+    document.getElementById('f-exit-price').value    = trade.exitPrice    || '';
     document.getElementById('f-current-price').value = trade.currentPrice || '';
   } else {
     document.getElementById('trade-modal-title').textContent = 'עסקה חדשה';
@@ -150,11 +158,13 @@ function saveTradeForm(e) {
     ticker:       document.getElementById('f-ticker').value.toUpperCase().trim(),
     sector:       document.getElementById('f-sector').value,
     entryDate:    document.getElementById('f-entry-date').value,
+    entryTime:    document.getElementById('f-entry-time').value || null,
     entryPrice:   parseFloat(document.getElementById('f-entry-price').value),
     entryAmount:  parseFloat(document.getElementById('f-entry-amount').value),
     stopLoss:     parseFloat(document.getElementById('f-stop-loss').value) || null,
     entryReason:  document.getElementById('f-entry-reason').value.trim(),
     exitDate,
+    exitTime:     document.getElementById('f-exit-time').value || null,
     exitPrice,
     currentPrice: parseFloat(document.getElementById('f-current-price').value) || null,
     status:       (exitPrice && exitDate) ? 'closed' : 'open',
@@ -183,6 +193,46 @@ function confirmDeleteTrade(id) {
     renderPortfolio();
     showToast('עסקה נמחקה', 'success');
   });
+}
+
+/* ---- Close Trade Modal ---- */
+let closingTradeId = null;
+
+function openCloseTradeModal(id) {
+  const trade = getTrades().find(t => t.id === id);
+  if (!trade) return;
+  closingTradeId = id;
+  document.getElementById('close-trade-ticker').textContent = trade.ticker;
+  const today   = new Date().toISOString().slice(0, 10);
+  const nowTime = new Date().toTimeString().slice(0, 5);
+  document.getElementById('ct-exit-date').value  = today;
+  document.getElementById('ct-exit-time').value  = nowTime;
+  document.getElementById('ct-exit-price').value = '';
+  const modal = document.getElementById('close-trade-modal');
+  modal.classList.add('open');
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('ct-exit-price').focus(), 50);
+}
+
+function closeCloseTradeModal() {
+  const modal = document.getElementById('close-trade-modal');
+  modal.classList.remove('open');
+  modal.style.display = 'none';
+  closingTradeId = null;
+}
+
+function saveCloseTradeForm(e) {
+  e.preventDefault();
+  if (!closingTradeId) return;
+  const exitDate  = document.getElementById('ct-exit-date').value;
+  const exitTime  = document.getElementById('ct-exit-time').value || null;
+  const exitPrice = parseFloat(document.getElementById('ct-exit-price').value);
+  if (!exitDate || !exitPrice) return;
+  updateTrade(closingTradeId, { exitDate, exitTime, exitPrice, status: 'closed' });
+  closeCloseTradeModal();
+  renderTrades();
+  renderPortfolio();
+  showToast('עסקה נסגרה ✓', 'success');
 }
 
 /* ---- Util ---- */

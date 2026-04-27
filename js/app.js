@@ -14,6 +14,7 @@ function switchRoom(roomId) {
   if (roomId === 'portfolio')    renderPortfolio();
   if (roomId === 'lessons')     { renderAutoAnalysis(); renderLessons(); }
   if (roomId === 'investments') renderInvestments();
+  if (roomId === 'history')     renderHistory();
 }
 
 /* ---- Toast ---- */
@@ -45,6 +46,8 @@ document.addEventListener('keydown', e => {
     closeTradeModal();
     closeLessonModal();
     closeInvestmentModal();
+    closeCloseTradeModal();
+    closeNoteModal();
     closeConfirmModal();
   }
 });
@@ -56,6 +59,7 @@ function refreshAllRooms() {
   renderAutoAnalysis();
   renderLessons();
   renderInvestments();
+  renderHistory();
   const activeRoom = document.querySelector('.room.active');
   if (!activeRoom) switchRoom('trades');
 }

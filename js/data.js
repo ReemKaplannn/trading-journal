@@ -205,6 +205,41 @@ function handleImport(event) {
 }
 
 /* ---------- Computed helpers ---------- */
+function calcPnlAmount(trade) {
+  if (!trade.exitPrice || !trade.entryPrice || !trade.entryAmount) return null;
+  const shares = parseFloat(trade.entryAmount) / parseFloat(trade.entryPrice);
+  return (parseFloat(trade.exitPrice) - parseFloat(trade.entryPrice)) * shares;
+}
+
+function durationMs(entryDate, exitDate) {
+  if (!entryDate || !exitDate) return null;
+  const ms = new Date(exitDate) - new Date(entryDate);
+  return isNaN(ms) || ms < 0 ? null : ms;
+}
+
+function fmtDurationMs(ms) {
+  if (ms === null || ms === undefined) return '—';
+  const days  = Math.floor(ms / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  if (days === 0 && hours === 0) return 'פחות משעה';
+  if (days === 0) return `${hours} שע'`;
+  if (hours === 0) return `${days} ימים`;
+  return `${days} ימים, ${hours} שע'`;
+}
+
+function calcDuration(entryDate, exitDate, entryTime, exitTime) {
+  if (!entryDate || !exitDate) return null;
+  const eStr = entryTime ? `${entryDate}T${entryTime}` : entryDate;
+  const xStr = exitTime  ? `${exitDate}T${exitTime}`   : exitDate;
+  const ms = new Date(xStr) - new Date(eStr);
+  return isNaN(ms) || ms < 0 ? null : fmtDurationMs(ms);
+}
+
+function fmtDatetime(dateStr, timeStr) {
+  const base = fmtDate(dateStr);
+  return (timeStr && base !== '—') ? `${base} ${timeStr}` : base;
+}
+
 function calcReturnPct(trade) {
   if (!trade.exitPrice || !trade.entryPrice) return null;
   return ((parseFloat(trade.exitPrice) - parseFloat(trade.entryPrice)) / parseFloat(trade.entryPrice)) * 100;

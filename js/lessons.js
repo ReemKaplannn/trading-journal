@@ -42,6 +42,16 @@ function renderAutoAnalysis() {
   const bestSector  = sectors[0];
   const worstSector = sectors[sectors.length - 1];
 
+  // Duration analysis
+  function avgDurDays(arr) {
+    const valid = arr.filter(t => t.exitDate && t.entryDate);
+    if (!valid.length) return null;
+    const total = valid.reduce((s, t) => s + (new Date(t.exitDate) - new Date(t.entryDate)), 0);
+    return (total / valid.length) / (1000 * 60 * 60 * 24);
+  }
+  const avgWinDur  = avgDurDays(wins);
+  const avgLossDur = avgDurDays(losses);
+
   // Stop loss breaches
   const slBreaches = closed.filter(t => {
     if (!t.stopLoss || !t.exitPrice) return false;
@@ -103,16 +113,26 @@ function renderAutoAnalysis() {
       <div class="analysis-stat-label">חודש טוב ביותר</div>
       <div class="analysis-stat-value">${monthLabel(bestMonth[0])}</div>
     </div>` : ''}
+    ${avgWinDur !== null ? `
+    <div class="analysis-stat">
+      <div class="analysis-stat-label">משך ממוצע — רווח</div>
+      <div class="analysis-stat-value" style="color:var(--green)">${avgWinDur.toFixed(1)} ימים</div>
+    </div>` : ''}
+    ${avgLossDur !== null ? `
+    <div class="analysis-stat">
+      <div class="analysis-stat-label">משך ממוצע — הפסד</div>
+      <div class="analysis-stat-value" style="color:var(--red)">${avgLossDur.toFixed(1)} ימים</div>
+    </div>` : ''}
     <div class="analysis-stat">
       <div class="analysis-stat-label">חריגות מ-Stop Loss</div>
       <div class="analysis-stat-value" style="color:${slBreaches.length?'var(--red)':'var(--green)'}">${slBreaches.length} עסקאות</div>
     </div>
 
-    ${buildInsights(closed, sectors, slBreaches, monthlyMap)}
+    ${buildInsights(closed, sectors, slBreaches, monthlyMap, avgWinDur, avgLossDur)}
   `;
 }
 
-function buildInsights(closed, sectors, slBreaches, monthlyMap) {
+function buildInsights(closed, sectors, slBreaches, monthlyMap, avgWinDur, avgLossDur) {
   const insights = [];
 
   // Sector pattern
@@ -125,6 +145,11 @@ function buildInsights(closed, sectors, slBreaches, monthlyMap) {
     if (best[1].total >= 2 && best[1].wins / best[1].total > 0.6) {
       insights.push(`✅ הסקטור "${best[0]}" מראה ביצועים עקביים — ${best[1].wins}/${best[1].total} עסקאות מוצלחות.`);
     }
+  }
+
+  // Duration insight
+  if (avgWinDur !== null && avgLossDur !== null && avgLossDur > avgWinDur * 1.5) {
+    insights.push(`📊 עסקאות מפסידות נמשכות בממוצע ${avgLossDur.toFixed(1)} ימים לעומת ${avgWinDur.toFixed(1)} ימים לעסקאות מרוויחות. שקול לקצר זמן עצירה בעסקאות שלא עובדות.`);
   }
 
   // SL pattern
@@ -170,22 +195,26 @@ function renderLessons() {
   // Sort month keys descending
   const sortedKeys = Object.keys(groups).sort((a,b) => b.localeCompare(a));
 
+  const allTrades = getTrades();
   container.innerHTML = sortedKeys.map(key => `
     <div class="month-group">
       <div class="month-label">${monthLabel(key)}</div>
-      ${groups[key].map(l => `
+      ${groups[key].map(l => {
+        const linked = l.tradeId ? allTrades.find(t => t.id === l.tradeId) : null;
+        return `
         <div class="lesson-card">
           <div class="lesson-card-header">
             <span class="lesson-card-title">${escHtml(l.title)}</span>
             <div class="lesson-card-actions">
+              ${linked ? `<span class="lesson-trade-badge" onclick="switchRoom('history')" title="פתח בהיסטוריה">${escHtml(linked.ticker)}</span>` : ''}
               <span class="lesson-card-date">${fmtDate(l.date)}</span>
               <button class="btn-icon" onclick="openLessonModal('${l.id}')" title="עריכה">✏️</button>
               <button class="btn-icon btn-icon-del" onclick="confirmDeleteLesson('${l.id}')" title="מחיקה">🗑️</button>
             </div>
           </div>
           ${l.content ? `<div class="lesson-card-body">${escHtml(l.content)}</div>` : ''}
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
     </div>
   `).join('');
 }
@@ -197,14 +226,21 @@ function openLessonModal(id) {
   const form  = document.getElementById('lesson-form');
   form.reset();
 
+  // Populate closed-trades selector
+  const tradeSelect = document.getElementById('l-trade-id');
+  const closedTrades = getTrades().filter(t => t.status === 'closed');
+  tradeSelect.innerHTML = '<option value="">— ללא קישור לעסקה —</option>' +
+    closedTrades.map(t => `<option value="${t.id}">${escHtml(t.ticker)} — ${fmtDate(t.exitDate)}</option>`).join('');
+
   if (id) {
     const lesson = getLessons().find(l => l.id === id);
     if (!lesson) return;
     document.getElementById('lesson-modal-title').textContent = 'עריכת לקח';
-    document.getElementById('l-date').value    = lesson.date    || '';
-    document.getElementById('l-month').value   = lesson.month   || '';
-    document.getElementById('l-title').value   = lesson.title   || '';
-    document.getElementById('l-content').value = lesson.content || '';
+    document.getElementById('l-date').value     = lesson.date    || '';
+    document.getElementById('l-month').value    = lesson.month   || '';
+    document.getElementById('l-title').value    = lesson.title   || '';
+    document.getElementById('l-content').value  = lesson.content || '';
+    tradeSelect.value = lesson.tradeId || '';
   } else {
     document.getElementById('lesson-modal-title').textContent = 'לקח חדש';
     const today = new Date().toISOString().slice(0,10);
@@ -231,6 +267,7 @@ function saveLessonForm(e) {
     month:   document.getElementById('l-month').value,
     title:   document.getElementById('l-title').value.trim(),
     content: document.getElementById('l-content').value.trim(),
+    tradeId: document.getElementById('l-trade-id').value || null,
   };
 
   if (editingLessonId) {

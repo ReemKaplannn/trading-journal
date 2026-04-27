@@ -36,6 +36,10 @@
           <span class="nav-icon">🏦</span>
           <span>השקעות</span>
         </button>
+        <button class="nav-item" data-room="history">
+          <span class="nav-icon">📜</span>
+          <span>היסטוריה</span>
+        </button>
       </nav>
       <div class="sidebar-bottom">
         <button class="btn-sidebar-action" onclick="exportJSON()">
@@ -59,9 +63,8 @@
         </div>
 
         <div class="trades-filters">
-          <button class="filter-btn active" data-filter="all" onclick="setTradesFilter('all')">הכל</button>
-          <button class="filter-btn" data-filter="open" onclick="setTradesFilter('open')">פתוחות 🟢</button>
-          <button class="filter-btn" data-filter="closed" onclick="setTradesFilter('closed')">סגורות ⚫</button>
+          <button class="filter-btn active" data-filter="all" onclick="setTradesFilter('all')">פעיל (פתוחות + 14 יום)</button>
+          <button class="filter-btn" data-filter="open" onclick="setTradesFilter('open')">פתוחות בלבד 🟢</button>
         </div>
 
         <div class="table-wrapper">
@@ -215,6 +218,79 @@
         </div>
       </div>
 
+      <!-- ===== ROOM 5: HISTORY ===== -->
+      <div id="room-history" class="room">
+        <div class="room-header">
+          <h1>היסטוריית עסקאות</h1>
+        </div>
+
+        <!-- Summary -->
+        <div class="hist-summary">
+          <div class="card hist-stat-card">
+            <div class="hist-stat-label">סה"כ עסקאות</div>
+            <div class="hist-stat-value" id="hist-total">0</div>
+          </div>
+          <div class="card hist-stat-card">
+            <div class="hist-stat-label">Win Rate</div>
+            <div class="hist-stat-value" id="hist-winrate">—</div>
+          </div>
+          <div class="card hist-stat-card">
+            <div class="hist-stat-label">רווח/הפסד כולל</div>
+            <div class="hist-stat-value" id="hist-total-pnl">—</div>
+          </div>
+          <div class="card hist-stat-card">
+            <div class="hist-stat-label">משך ממוצע</div>
+            <div class="hist-stat-value" id="hist-avg-duration">—</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="hist-controls">
+          <div class="trades-filters">
+            <button class="filter-btn active" data-hfilter="all"  onclick="setHistFilter('all')">הכל</button>
+            <button class="filter-btn"        data-hfilter="win"  onclick="setHistFilter('win')">רווחים ✅</button>
+            <button class="filter-btn"        data-hfilter="loss" onclick="setHistFilter('loss')">הפסדים ❌</button>
+          </div>
+          <select id="hist-sort" class="hist-sort-select" onchange="renderHistory()">
+            <option value="exitDate-desc">תאריך יציאה (חדש→ישן)</option>
+            <option value="exitDate-asc">תאריך יציאה (ישן→חדש)</option>
+            <option value="pnl-desc">תשואה % (גבוה→נמוך)</option>
+            <option value="pnl-asc">תשואה % (נמוך→גבוה)</option>
+            <option value="duration-desc">משך זמן (ארוך→קצר)</option>
+            <option value="duration-asc">משך זמן (קצר→ארוך)</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+          <table class="trades-table" id="hist-table">
+            <thead>
+              <tr>
+                <th>טיקר</th>
+                <th>סקטור</th>
+                <th>כניסה</th>
+                <th>יציאה</th>
+                <th>משך</th>
+                <th>מחיר כניסה</th>
+                <th>מחיר יציאה</th>
+                <th>תוצאה $</th>
+                <th>תוצאה %</th>
+                <th>סטטוס</th>
+                <th>לקח / הערה</th>
+                <th>פעולות</th>
+              </tr>
+            </thead>
+            <tbody id="hist-tbody"></tbody>
+          </table>
+        </div>
+
+        <div id="hist-empty" class="empty-state" style="display:none">
+          <div class="empty-icon">📜</div>
+          <p>אין עסקאות סגורות</p>
+          <p class="empty-sub">עסקאות שנסגרות יופיעו כאן</p>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -254,6 +330,10 @@
             <input type="date" id="f-entry-date" required>
           </div>
           <div class="form-group">
+            <label for="f-entry-time">שעת כניסה</label>
+            <input type="time" id="f-entry-time">
+          </div>
+          <div class="form-group">
             <label for="f-entry-price">מחיר כניסה ($) *</label>
             <input type="number" id="f-entry-price" required step="0.0001" min="0" placeholder="0.00">
           </div>
@@ -272,6 +352,10 @@
           <div class="form-group">
             <label for="f-exit-date">תאריך יציאה</label>
             <input type="date" id="f-exit-date">
+          </div>
+          <div class="form-group">
+            <label for="f-exit-time">שעת יציאה</label>
+            <input type="time" id="f-exit-time">
           </div>
           <div class="form-group">
             <label for="f-exit-price">מחיר יציאה ($)</label>
@@ -314,6 +398,12 @@
           <div class="form-group form-full">
             <label for="l-content">תוכן</label>
             <textarea id="l-content" rows="5" placeholder="פרט את הלקח, מה קרה, מה תשנה בעתיד..."></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label for="l-trade-id">קישור לעסקה בהיסטוריה <span class="label-note">(אופציונלי)</span></label>
+            <select id="l-trade-id">
+              <option value="">— ללא קישור —</option>
+            </select>
           </div>
         </div>
         <div class="modal-footer">
@@ -374,6 +464,59 @@
     </div>
   </div>
 
+  <!-- ===== CLOSE TRADE MODAL ===== -->
+  <div id="close-trade-modal" class="modal-overlay" onclick="if(event.target===this)closeCloseTradeModal()">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>סגירת עסקה — <span id="close-trade-ticker"></span></h2>
+        <button class="modal-close" onclick="closeCloseTradeModal()" aria-label="סגור">&times;</button>
+      </div>
+      <form id="close-trade-form" onsubmit="saveCloseTradeForm(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="ct-exit-date">תאריך יציאה *</label>
+            <input type="date" id="ct-exit-date" required>
+          </div>
+          <div class="form-group">
+            <label for="ct-exit-time">שעת יציאה</label>
+            <input type="time" id="ct-exit-time">
+          </div>
+          <div class="form-group form-full">
+            <label for="ct-exit-price">מחיר יציאה ($) *</label>
+            <input type="number" id="ct-exit-price" required step="0.0001" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group form-full">
+            <p class="close-trade-warning">⚠️ לאחר סגירה, העסקה תועבר להיסטוריה אחרי 14 יום ולא תוצג כאן.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeCloseTradeModal()">ביטול</button>
+          <button type="submit" class="btn-danger">סגור עסקה</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== NOTE MODAL ===== -->
+  <div id="note-modal" class="modal-overlay" onclick="if(event.target===this)closeNoteModal()">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>לקח / הערה — <span id="note-modal-ticker"></span></h2>
+        <button class="modal-close" onclick="closeNoteModal()" aria-label="סגור">&times;</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label for="note-text">הערה</label>
+          <textarea id="note-text" rows="5" placeholder="מה למדת מעסקה זו? תאר את הסטאפ, מה עבד, מה לשפר..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeNoteModal()">ביטול</button>
+        <button class="btn-primary" onclick="saveNote()">שמור הערה</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Delete Confirm Dialog -->
   <div id="confirm-modal" class="modal-overlay" style="display:none">
     <div class="modal modal-xs">
@@ -398,6 +541,7 @@
   <script src="js/portfolio.js"></script>
   <script src="js/lessons.js"></script>
   <script src="js/investments.js"></script>
+  <script src="js/history.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
