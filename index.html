@@ -32,6 +32,10 @@
           <span class="nav-icon">🎯</span>
           <span>לקחים חודשיים</span>
         </button>
+        <button class="nav-item" data-room="investments">
+          <span class="nav-icon">🏦</span>
+          <span>השקעות</span>
+        </button>
       </nav>
       <div class="sidebar-bottom">
         <button class="btn-sidebar-action" onclick="exportJSON()">
@@ -171,6 +175,46 @@
         </div>
       </div>
 
+      <!-- ===== ROOM 4: INVESTMENTS ===== -->
+      <div id="room-investments" class="room">
+        <div class="room-header">
+          <h1>תיק השקעות</h1>
+          <button class="btn-primary" onclick="openInvestmentModal()">+ השקעה חדשה</button>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="inv-stats-grid">
+          <div class="card">
+            <h3>שווי תיק כולל</h3>
+            <div class="inv-total-value" id="inv-total-value">₪0.00</div>
+          </div>
+          <div class="card stats-card">
+            <div class="stat-row">
+              <span class="stat-label">סה"כ הושקע</span>
+              <span class="stat-value" id="inv-total-invested">₪0.00</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">רווח/הפסד כולל</span>
+              <span class="stat-value" id="inv-total-pnl">₪0.00</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">תשואה כוללת</span>
+              <span class="stat-value" id="inv-total-pct">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Investment cards -->
+        <div id="inv-cards-grid" class="inv-cards-grid"></div>
+
+        <!-- Empty state -->
+        <div id="inv-empty" class="empty-state" style="display:none">
+          <div class="empty-icon">🏦</div>
+          <p>אין השקעות עדיין</p>
+          <p class="empty-sub">לחץ "+ השקעה חדשה" כדי להוסיף את ההשקעה הראשונה שלך</p>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -280,6 +324,56 @@
     </div>
   </div>
 
+  <!-- ===== INVESTMENT MODAL ===== -->
+  <div id="investment-modal" class="modal-overlay" onclick="if(event.target===this)closeInvestmentModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="inv-modal-title">השקעה חדשה</h2>
+        <button class="modal-close" onclick="closeInvestmentModal()" aria-label="סגור">&times;</button>
+      </div>
+      <form id="investment-form" onsubmit="saveInvestmentForm(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="i-ticker">טיקר / סימול *</label>
+            <input type="text" id="i-ticker" required placeholder="AAPL" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="form-group">
+            <label for="i-name">שם הנכס</label>
+            <input type="text" id="i-name" placeholder="Apple Inc.">
+          </div>
+          <div class="form-group">
+            <label for="i-entry-date">תאריך כניסה *</label>
+            <input type="date" id="i-entry-date" required>
+          </div>
+          <div class="form-group">
+            <label for="i-entry-price">מחיר כניסה (₪)</label>
+            <input type="number" id="i-entry-price" step="0.0001" min="0" placeholder="0.00" oninput="calcInvestedFromPriceQty()">
+          </div>
+          <div class="form-group">
+            <label for="i-quantity">כמות / יחידות</label>
+            <input type="number" id="i-quantity" step="0.0001" min="0" placeholder="0" oninput="calcInvestedFromPriceQty()">
+          </div>
+          <div class="form-group">
+            <label for="i-invested-amount">סכום השקעה (₪) *<span class="label-note"> — או מחיר × כמות</span></label>
+            <input type="number" id="i-invested-amount" required step="0.01" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group form-full">
+            <label for="i-current-value">שווי נוכחי (₪) <span class="label-note">— לעדכון ידני</span></label>
+            <input type="number" id="i-current-value" step="0.01" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group form-full">
+            <label for="i-notes">הערות</label>
+            <textarea id="i-notes" rows="3" placeholder="סיבת ההשקעה, אסטרטגיה, יעד מחיר..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeInvestmentModal()">ביטול</button>
+          <button type="submit" class="btn-primary">שמור השקעה</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Delete Confirm Dialog -->
   <div id="confirm-modal" class="modal-overlay" style="display:none">
     <div class="modal modal-xs">
@@ -303,6 +397,7 @@
   <script src="js/trades.js"></script>
   <script src="js/portfolio.js"></script>
   <script src="js/lessons.js"></script>
+  <script src="js/investments.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

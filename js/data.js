@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   trades:        'tj_trades',
   lessons:       'tj_lessons',
   portfolioSize: 'tj_portfolio_size',
+  investments:   'tj_investments',
   seeded:        'tj_seeded_v1',
 };
 
@@ -129,14 +130,47 @@ function savePortfolioSize(size) {
   localStorage.setItem(STORAGE_KEYS.portfolioSize, String(parseFloat(size) || 0));
 }
 
+/* ---------- Investments ---------- */
+function getInvestments() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.investments)) || []; }
+  catch { return []; }
+}
+
+function saveInvestments(investments) {
+  localStorage.setItem(STORAGE_KEYS.investments, JSON.stringify(investments));
+}
+
+function addInvestment(inv) {
+  const investments = getInvestments();
+  inv.id = Date.now().toString();
+  inv.createdAt = new Date().toISOString();
+  investments.push(inv);
+  saveInvestments(investments);
+  return inv;
+}
+
+function updateInvestment(id, updates) {
+  const investments = getInvestments();
+  const idx = investments.findIndex(i => i.id === id);
+  if (idx === -1) return false;
+  investments[idx] = { ...investments[idx], ...updates, updatedAt: new Date().toISOString() };
+  saveInvestments(investments);
+  return investments[idx];
+}
+
+function deleteInvestment(id) {
+  saveInvestments(getInvestments().filter(i => i.id !== id));
+}
+
 /* ---------- Export / Import ---------- */
 function exportJSON() {
   const data = {
-    version:       2,
+    version:       3,
     exportedAt:    new Date().toISOString(),
     trades:        getTrades(),
     lessons:       getLessons(),
     portfolioSize: getPortfolioSize(),
+    investments:   getInvestments(),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
@@ -159,6 +193,7 @@ function handleImport(event) {
       if (data.trades)        saveTrades(data.trades);
       if (data.lessons)       saveLessons(data.lessons);
       if (data.portfolioSize) savePortfolioSize(data.portfolioSize);
+      if (data.investments)   saveInvestments(data.investments);
       showToast('נתונים יובאו בהצלחה ✓', 'success');
       refreshAllRooms();
     } catch {
