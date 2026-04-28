@@ -38,7 +38,7 @@ function renderInvestments() {
 
       <div class="inv-card-values">
         <div class="inv-val-block">
-          <span class="inv-val-label">מחיר כניסה</span>
+          <span class="inv-val-label">מחיר בפנים</span>
           <span class="inv-val">${inv.entryPrice ? '$' + fmt(inv.entryPrice) : '—'}</span>
         </div>
         <div class="inv-val-block">
