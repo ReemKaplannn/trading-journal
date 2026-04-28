@@ -5,6 +5,84 @@ let tradesSortKey = 'entryDate';
 let tradesSortDir = -1; // -1 = desc, 1 = asc
 let editingTradeId = null;
 
+/* ---- KPI Cards ---- */
+function renderTradesKpi() {
+  const allTrades  = getTrades();
+  const openTrades = allTrades.filter(t => t.status === 'open');
+  const closed     = allTrades.filter(t => t.status === 'closed');
+  const wins       = closed.filter(t => (calcReturnPct(t) || 0) > 0);
+
+  // Open trades count
+  const elOpen    = document.getElementById('kpi-open');
+  const elOpenCtx = document.getElementById('kpi-open-ctx');
+  if (elOpen) {
+    elOpen.textContent = openTrades.length;
+    elOpen.style.color = '';
+    if (elOpenCtx) {
+      const invested = openTrades.reduce((s, t) => s + (parseFloat(t.entryAmount) || 0), 0);
+      elOpenCtx.textContent = invested > 0 ? '$' + fmt(invested, 0) + ' מושקע' : 'אין פוזיציות';
+    }
+  }
+
+  // Win rate
+  const elWR    = document.getElementById('kpi-winrate');
+  const elWRCtx = document.getElementById('kpi-winrate-ctx');
+  if (elWR) {
+    if (closed.length > 0) {
+      const wr = (wins.length / closed.length) * 100;
+      elWR.textContent = wr.toFixed(1) + '%';
+      elWR.style.color = wr >= 50 ? 'var(--green)' : 'var(--red)';
+      if (elWRCtx) elWRCtx.textContent = wins.length + '/' + closed.length + ' עסקאות';
+    } else {
+      elWR.textContent    = '—';
+      elWR.style.color    = '';
+      if (elWRCtx) elWRCtx.textContent = 'אין עסקאות סגורות';
+    }
+  }
+
+  // Unrealized P&L
+  const elPnl     = document.getElementById('kpi-unrealized');
+  const elPnlCtx  = document.getElementById('kpi-unrealized-ctx');
+  const kpiPnlCard = elPnl ? elPnl.closest('.kpi-card') : null;
+  if (elPnl) {
+    const unrealized = openTrades.reduce((s, t) => s + (calcUnrealizedPnl(t) || 0), 0);
+    const hasData    = openTrades.some(t => t.currentPrice);
+    if (hasData) {
+      const isPos = unrealized >= 0;
+      elPnl.textContent   = (isPos ? '+' : '-') + '$' + fmt(Math.abs(unrealized), 0);
+      elPnl.style.color   = isPos ? 'var(--green)' : 'var(--red)';
+      if (kpiPnlCard) kpiPnlCard.style.borderTopColor = isPos ? 'var(--green)' : 'var(--red)';
+      if (elPnlCtx) {
+        const n = openTrades.filter(t => t.currentPrice).length;
+        elPnlCtx.textContent = n + ' עסקאות עם מחיר נוכחי';
+      }
+    } else {
+      elPnl.textContent  = '—';
+      elPnl.style.color  = '';
+      if (kpiPnlCard) kpiPnlCard.style.borderTopColor = '';
+      if (elPnlCtx) elPnlCtx.textContent = 'עדכן מחיר נוכחי בעסקאות';
+    }
+  }
+
+  // Avg position size
+  const elAvg    = document.getElementById('kpi-avg-pos');
+  const elAvgCtx = document.getElementById('kpi-avg-pos-ctx');
+  if (elAvg) {
+    if (openTrades.length > 0) {
+      const total = openTrades.reduce((s, t) => s + (parseFloat(t.entryAmount) || 0), 0);
+      const avg   = total / openTrades.length;
+      elAvg.textContent = '$' + fmt(avg, 0);
+      if (elAvgCtx) {
+        const ps = getPortfolioSize();
+        elAvgCtx.textContent = ps > 0 ? (avg / ps * 100).toFixed(1) + '% מהתיק' : '';
+      }
+    } else {
+      elAvg.textContent = '—';
+      if (elAvgCtx) elAvgCtx.textContent = '';
+    }
+  }
+}
+
 /* ---- Render ---- */
 function renderTrades() {
   let trades = getTrades();
@@ -86,6 +164,7 @@ function renderTrades() {
   }).join('');
 
   updateSortHeaders();
+  renderTradesKpi();
 }
 
 function updateSortHeaders() {

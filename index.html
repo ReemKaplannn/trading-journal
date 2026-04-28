@@ -127,6 +127,30 @@
           <button class="btn-primary" onclick="openTradeModal()">+ עסקה חדשה</button>
         </div>
 
+        <!-- KPI Cards -->
+        <div class="trades-kpi">
+          <div class="kpi-card kpi-accent">
+            <div class="kpi-label">עסקאות פתוחות</div>
+            <div class="kpi-value" id="kpi-open">—</div>
+            <div class="kpi-context" id="kpi-open-ctx"></div>
+          </div>
+          <div class="kpi-card kpi-green">
+            <div class="kpi-label">Win Rate</div>
+            <div class="kpi-value" id="kpi-winrate">—</div>
+            <div class="kpi-context" id="kpi-winrate-ctx"></div>
+          </div>
+          <div class="kpi-card kpi-dynamic">
+            <div class="kpi-label">P&amp;L לא ממומש</div>
+            <div class="kpi-value" id="kpi-unrealized">—</div>
+            <div class="kpi-context" id="kpi-unrealized-ctx"></div>
+          </div>
+          <div class="kpi-card kpi-yellow">
+            <div class="kpi-label">פוזיציה ממוצעת</div>
+            <div class="kpi-value" id="kpi-avg-pos">—</div>
+            <div class="kpi-context" id="kpi-avg-pos-ctx"></div>
+          </div>
+        </div>
+
         <div class="trades-filters">
           <button class="filter-btn active" data-filter="all" onclick="setTradesFilter('all')">פעיל (פתוחות + 14 יום)</button>
           <button class="filter-btn" data-filter="open" onclick="setTradesFilter('open')">פתוחות בלבד 🟢</button>

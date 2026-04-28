@@ -44,6 +44,7 @@ function renderInvestments() {
   grid.innerHTML = investments.map(inv => {
     const currentVal = parseFloat(inv.currentValue) || 0;
     const portPct    = total > 0 ? (currentVal / total) * 100 : 0;
+    const barWidth   = Math.min(portPct, 100).toFixed(2);
 
     return `<div class="inv-card">
       <div class="inv-card-header">
@@ -53,19 +54,20 @@ function renderInvestments() {
           <button class="btn-icon btn-icon-del" onclick="confirmDeleteInvestment('${inv.id}')" title="מחיקה">🗑️</button>
         </div>
       </div>
+      <div class="inv-card-sep"></div>
 
       <div class="inv-card-values">
         <div class="inv-val-block">
-          <span class="inv-val-label">מחיר בפנים</span>
           <span class="inv-val">${inv.entryPrice ? '$' + fmt(inv.entryPrice) : '—'}</span>
+          <span class="inv-val-label">מחיר כניסה</span>
         </div>
         <div class="inv-val-block">
+          <span class="inv-val">${inv.quantity ? '×' + parseFloat(inv.quantity).toLocaleString('en-US') : '—'}</span>
           <span class="inv-val-label">כמות</span>
-          <span class="inv-val">${inv.quantity ? parseFloat(inv.quantity).toLocaleString('en-US') : '—'}</span>
         </div>
         <div class="inv-val-block">
+          <span class="inv-val inv-val-current">${currentVal ? '$' + fmt(currentVal) : '—'}</span>
           <span class="inv-val-label">שווי נוכחי</span>
-          <span class="inv-val">${currentVal ? '$' + fmt(currentVal) : '—'}</span>
         </div>
       </div>
 
@@ -75,7 +77,7 @@ function renderInvestments() {
           <span class="inv-alloc-pct">${portPct.toFixed(1)}%</span>
         </div>
         <div class="inv-progress-track">
-          <div class="inv-progress-bar" style="width:${Math.min(portPct, 100).toFixed(2)}%"></div>
+          <div class="inv-progress-bar" style="width:${barWidth}%"></div>
         </div>
       </div>
 
