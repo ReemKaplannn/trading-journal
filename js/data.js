@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   portfolioSize:    'tj_portfolio_size',
   investments:      'tj_investments',
   invPortfolioTotal:'tj_inv_portfolio_total',
+  invUpdatedDate:   'tj_inv_updated_date',
   seeded:           'tj_seeded_v1',
 };
 
@@ -137,6 +138,14 @@ function getInvPortfolioTotal() {
 }
 function saveInvPortfolioTotal(val) {
   localStorage.setItem(STORAGE_KEYS.invPortfolioTotal, String(parseFloat(val) || 0));
+}
+
+/* ---------- Investment Prices Last Updated ---------- */
+function getInvUpdatedDate() {
+  return localStorage.getItem(STORAGE_KEYS.invUpdatedDate) || '';
+}
+function saveInvUpdatedDate(dateStr) {
+  localStorage.setItem(STORAGE_KEYS.invUpdatedDate, dateStr || '');
 }
 
 /* ---------- Investments ---------- */

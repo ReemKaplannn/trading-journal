@@ -187,20 +187,36 @@
 
         <!-- Summary -->
         <div class="card inv-summary-card">
-          <h3>שווי תיק כולל</h3>
-          <div class="portfolio-size-row">
-            <span class="currency-symbol">$</span>
-            <input
-              type="number"
-              id="inv-portfolio-total-input"
-              class="portfolio-size-field"
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              oninput="updateInvTotal(this.value)"
-            >
+          <div class="inv-summary-top">
+            <div>
+              <h3>שווי תיק כולל</h3>
+              <div class="portfolio-size-row">
+                <span class="currency-symbol">$</span>
+                <input
+                  type="number"
+                  id="inv-portfolio-total-input"
+                  class="portfolio-size-field"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                  oninput="updateInvTotal(this.value)"
+                >
+              </div>
+              <p class="inv-total-hint">אם לא תמלא — יחושב אוטומטית מסכום השוויים הנוכחיים</p>
+            </div>
+
+            <!-- Last updated widget -->
+            <div class="inv-updated-widget">
+              <div class="inv-updated-label">עדכון אחרון</div>
+              <input
+                type="date"
+                id="inv-updated-date"
+                class="inv-updated-input"
+                onchange="saveInvUpdatedDate(this.value)"
+              >
+              <div id="inv-updated-status" class="inv-updated-status"></div>
+            </div>
           </div>
-          <p class="inv-total-hint">אם לא תמלא — יחושב אוטומטית מסכום השוויים הנוכחיים</p>
         </div>
 
         <!-- Donut Chart -->

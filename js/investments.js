@@ -20,9 +20,12 @@ function renderInvestments() {
   const storedTotal = getInvPortfolioTotal();
   const total = storedTotal > 0 ? storedTotal : sumCurrentValues;
 
-  // Sync input field
+  // Sync total input field
   const totalInput = document.getElementById('inv-portfolio-total-input');
   if (totalInput && storedTotal > 0) totalInput.value = storedTotal;
+
+  // Sync last-updated widget
+  renderInvUpdatedWidget();
 
   // Donut chart
   renderInvDonutChart(investments, total);
@@ -180,6 +183,38 @@ function renderInvDonutChart(investments, total) {
 function updateInvTotal(value) {
   saveInvPortfolioTotal(parseFloat(value) || 0);
   renderInvestments();
+}
+
+/* ---- Last-updated widget ---- */
+function renderInvUpdatedWidget() {
+  const input  = document.getElementById('inv-updated-date');
+  const status = document.getElementById('inv-updated-status');
+  if (!input || !status) return;
+
+  const saved = getInvUpdatedDate();
+  input.value = saved;
+
+  if (!saved) {
+    status.textContent = '';
+    status.className   = 'inv-updated-status';
+    return;
+  }
+
+  const today    = new Date();
+  today.setHours(0, 0, 0, 0);
+  const updated  = new Date(saved);
+  const diffDays = Math.round((today - updated) / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    status.textContent = '✓ מעודכן להיום';
+    status.className   = 'inv-updated-status fresh';
+  } else if (diffDays <= 3) {
+    status.textContent = `לפני ${diffDays} ימים`;
+    status.className   = 'inv-updated-status recent';
+  } else {
+    status.textContent = `לפני ${diffDays} ימים — כדאי לעדכן`;
+    status.className   = 'inv-updated-status stale';
+  }
 }
 
 /* ---- Modal ---- */

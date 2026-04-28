@@ -991,6 +991,57 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
   white-space: pre-wrap;
 }
 
+.inv-summary-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.inv-updated-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  min-width: 160px;
+}
+
+.inv-updated-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inv-updated-input {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-main);
+  font-family: 'Heebo', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.inv-updated-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.inv-updated-status {
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-height: 1.1em;
+}
+
+.inv-updated-status.fresh  { color: var(--green); }
+.inv-updated-status.recent { color: var(--accent); }
+.inv-updated-status.stale  { color: var(--red); }
+
 .inv-chart-card {
   margin-bottom: 1.5rem;
 }
