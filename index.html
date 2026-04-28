@@ -185,26 +185,10 @@
           <button class="btn-primary" onclick="openInvestmentModal()">+ השקעה חדשה</button>
         </div>
 
-        <!-- Summary stats -->
-        <div class="inv-stats-grid">
-          <div class="card">
-            <h3>שווי תיק כולל</h3>
-            <div class="inv-total-value" id="inv-total-value">₪0.00</div>
-          </div>
-          <div class="card stats-card">
-            <div class="stat-row">
-              <span class="stat-label">סה"כ הושקע</span>
-              <span class="stat-value" id="inv-total-invested">₪0.00</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">רווח/הפסד כולל</span>
-              <span class="stat-value" id="inv-total-pnl">₪0.00</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">תשואה כוללת</span>
-              <span class="stat-value" id="inv-total-pct">—</span>
-            </div>
-          </div>
+        <!-- Summary -->
+        <div class="card inv-summary-card">
+          <h3>שווי תיק כולל</h3>
+          <div class="inv-total-value" id="inv-total-value">$0.00</div>
         </div>
 
         <!-- Investment cards -->
@@ -416,39 +400,27 @@
 
   <!-- ===== INVESTMENT MODAL ===== -->
   <div id="investment-modal" class="modal-overlay" onclick="if(event.target===this)closeInvestmentModal()">
-    <div class="modal">
+    <div class="modal modal-sm">
       <div class="modal-header">
         <h2 id="inv-modal-title">השקעה חדשה</h2>
         <button class="modal-close" onclick="closeInvestmentModal()" aria-label="סגור">&times;</button>
       </div>
       <form id="investment-form" onsubmit="saveInvestmentForm(event)">
         <div class="form-grid">
-          <div class="form-group">
-            <label for="i-ticker">טיקר / סימול *</label>
+          <div class="form-group form-full">
+            <label for="i-ticker">טיקר / נכס *</label>
             <input type="text" id="i-ticker" required placeholder="AAPL" oninput="this.value=this.value.toUpperCase()">
           </div>
           <div class="form-group">
-            <label for="i-name">שם הנכס</label>
-            <input type="text" id="i-name" placeholder="Apple Inc.">
+            <label for="i-entry-price">מחיר כניסה ($)</label>
+            <input type="number" id="i-entry-price" step="0.0001" min="0" placeholder="0.00">
           </div>
           <div class="form-group">
-            <label for="i-entry-date">תאריך כניסה *</label>
-            <input type="date" id="i-entry-date" required>
-          </div>
-          <div class="form-group">
-            <label for="i-entry-price">מחיר כניסה (₪)</label>
-            <input type="number" id="i-entry-price" step="0.0001" min="0" placeholder="0.00" oninput="calcInvestedFromPriceQty()">
-          </div>
-          <div class="form-group">
-            <label for="i-quantity">כמות / יחידות</label>
-            <input type="number" id="i-quantity" step="0.0001" min="0" placeholder="0" oninput="calcInvestedFromPriceQty()">
-          </div>
-          <div class="form-group">
-            <label for="i-invested-amount">סכום השקעה (₪) *<span class="label-note"> — או מחיר × כמות</span></label>
-            <input type="number" id="i-invested-amount" required step="0.01" min="0" placeholder="0.00">
+            <label for="i-quantity">כמות יחידות</label>
+            <input type="number" id="i-quantity" step="0.0001" min="0" placeholder="0">
           </div>
           <div class="form-group form-full">
-            <label for="i-current-value">שווי נוכחי (₪) <span class="label-note">— לעדכון ידני</span></label>
+            <label for="i-current-value">שווי נוכחי ($) <span class="label-note">— לעדכון ידני</span></label>
             <input type="number" id="i-current-value" step="0.01" min="0" placeholder="0.00">
           </div>
           <div class="form-group form-full">
