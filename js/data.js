@@ -1,11 +1,12 @@
 /* ===== DATA LAYER — localStorage ===== */
 
 const STORAGE_KEYS = {
-  trades:        'tj_trades',
-  lessons:       'tj_lessons',
-  portfolioSize: 'tj_portfolio_size',
-  investments:   'tj_investments',
-  seeded:        'tj_seeded_v1',
+  trades:           'tj_trades',
+  lessons:          'tj_lessons',
+  portfolioSize:    'tj_portfolio_size',
+  investments:      'tj_investments',
+  invPortfolioTotal:'tj_inv_portfolio_total',
+  seeded:           'tj_seeded_v1',
 };
 
 /* ---------- Initial Seed (runs once per browser) ---------- */
@@ -128,6 +129,14 @@ function getPortfolioSize() {
 
 function savePortfolioSize(size) {
   localStorage.setItem(STORAGE_KEYS.portfolioSize, String(parseFloat(size) || 0));
+}
+
+/* ---------- Investment Portfolio Total ---------- */
+function getInvPortfolioTotal() {
+  return parseFloat(localStorage.getItem(STORAGE_KEYS.invPortfolioTotal)) || 0;
+}
+function saveInvPortfolioTotal(val) {
+  localStorage.setItem(STORAGE_KEYS.invPortfolioTotal, String(parseFloat(val) || 0));
 }
 
 /* ---------- Investments ---------- */

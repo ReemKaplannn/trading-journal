@@ -919,6 +919,69 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
   min-width: 2px;
 }
 
+.inv-total-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+/* Allocation breakdown rows */
+.inv-alloc-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.inv-alloc-row:last-child { border-bottom: none; }
+
+.inv-alloc-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inv-alloc-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inv-alloc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.inv-alloc-ticker {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.inv-alloc-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inv-alloc-amount {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.inv-alloc-pct-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 8px;
+  border-radius: 10px;
+  min-width: 48px;
+  text-align: center;
+}
+
 .inv-notes {
   font-size: 0.82rem;
   color: var(--text-muted);
