@@ -34,7 +34,7 @@
         </button>
         <button class="nav-item" data-room="investments">
           <span class="nav-icon">🏦</span>
-          <span>השקעות</span>
+          <span>תיק השקעות</span>
         </button>
         <button class="nav-item" data-room="history">
           <span class="nav-icon">📜</span>
@@ -203,10 +203,13 @@
           <p class="inv-total-hint">אם לא תמלא — יחושב אוטומטית מסכום השוויים הנוכחיים</p>
         </div>
 
-        <!-- Allocation Breakdown -->
-        <div class="card">
-          <h3>📊 חלוקת ההחזקות</h3>
-          <div id="inv-allocation-list"></div>
+        <!-- Donut Chart -->
+        <div class="card inv-chart-card">
+          <h3>חלוקת תיק</h3>
+          <div class="inv-chart-wrapper">
+            <canvas id="inv-portfolio-chart"></canvas>
+            <p id="inv-chart-empty" class="empty-sub" style="display:none;text-align:center;">אין נתונים לתצוגה</p>
+          </div>
         </div>
 
         <!-- Investment cards -->

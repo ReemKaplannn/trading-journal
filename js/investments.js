@@ -1,6 +1,13 @@
 /* ===== INVESTMENTS ROOM ===== */
 
 let editingInvestmentId = null;
+let invChartInstance    = null;
+
+const INV_COLORS = [
+  '#38bdf8','#22c55e','#f59e0b','#a78bfa','#fb7185',
+  '#34d399','#60a5fa','#fbbf24','#c084fc','#f87171',
+  '#2dd4bf','#818cf8',
+];
 
 /* ---- Render ---- */
 function renderInvestments() {
@@ -17,11 +24,11 @@ function renderInvestments() {
   const totalInput = document.getElementById('inv-portfolio-total-input');
   if (totalInput && storedTotal > 0) totalInput.value = storedTotal;
 
+  // Donut chart
+  renderInvDonutChart(investments, total);
+
   const grid  = document.getElementById('inv-cards-grid');
   const empty = document.getElementById('inv-empty');
-
-  // Allocation breakdown (always render)
-  renderInvAllocation(investments, total);
 
   if (investments.length === 0) {
     grid.innerHTML = '';
@@ -74,80 +81,105 @@ function renderInvestments() {
   }).join('');
 }
 
+/* ---- Donut Chart ---- */
+function renderInvDonutChart(investments, total) {
+  const canvas   = document.getElementById('inv-portfolio-chart');
+  const emptyMsg = document.getElementById('inv-chart-empty');
+  if (!canvas) return;
+
+  // Build sorted data (only investments with currentValue)
+  const sorted = investments
+    .filter(inv => parseFloat(inv.currentValue) > 0)
+    .sort((a, b) => (parseFloat(b.currentValue) || 0) - (parseFloat(a.currentValue) || 0));
+
+  const sumCurrent = investments.reduce((s, inv) => s + (parseFloat(inv.currentValue) || 0), 0);
+  const cash       = total > sumCurrent ? total - sumCurrent : 0;
+  const hasData    = sorted.length > 0;
+
+  if (!hasData && cash < 0.01) {
+    if (emptyMsg) emptyMsg.style.display = 'block';
+    canvas.style.display = 'none';
+    if (invChartInstance) { invChartInstance.destroy(); invChartInstance = null; }
+    return;
+  }
+
+  if (emptyMsg) emptyMsg.style.display = 'none';
+  canvas.style.display = 'block';
+
+  // Labels include pct for legend readability
+  const chartTotal = total > 0 ? total : sumCurrent;
+  const labels  = sorted.map(inv => {
+    const pct = chartTotal > 0 ? (parseFloat(inv.currentValue) / chartTotal * 100) : 0;
+    return `${inv.ticker || '?'}  ${pct.toFixed(1)}%`;
+  });
+  const values  = sorted.map(inv => parseFloat(inv.currentValue) || 0);
+  const colors  = sorted.map((_, i) => INV_COLORS[i % INV_COLORS.length]);
+
+  if (cash > 0.01) {
+    const cashPct = (cash / chartTotal) * 100;
+    labels.push(`מזומן  ${cashPct.toFixed(1)}%`);
+    values.push(cash);
+    colors.push('#64748b');
+  }
+
+  if (invChartInstance) invChartInstance.destroy();
+
+  invChartInstance = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data:            values,
+        backgroundColor: colors,
+        borderColor:     '#1c2230',
+        borderWidth:     3,
+        hoverOffset:     8,
+      }],
+    },
+    options: {
+      responsive:          true,
+      maintainAspectRatio: false,
+      cutout:              '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color:    '#94a3b8',
+            font:     { family: 'Heebo', size: 12 },
+            padding:  14,
+            boxWidth: 12,
+            boxHeight:12,
+          },
+        },
+        tooltip: {
+          callbacks: {
+            title: ctx => {
+              // Show raw ticker without the % suffix in tooltip title
+              const raw = ctx[0].label || '';
+              return raw.split('  ')[0];
+            },
+            label: ctx => {
+              const dataTotal = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              const pct = dataTotal > 0 ? (ctx.parsed / dataTotal * 100).toFixed(1) : 0;
+              return `  $${fmt(ctx.parsed)}  (${pct}%)`;
+            },
+          },
+          bodyFont:        { family: 'Heebo', size: 13 },
+          titleFont:       { family: 'Heebo', size: 13, weight: 'bold' },
+          backgroundColor: '#1c2230',
+          borderColor:     '#3d4a60',
+          borderWidth:     1,
+          padding:         10,
+        },
+      },
+    },
+  });
+}
+
 /* ---- Update total (called from input) ---- */
 function updateInvTotal(value) {
   saveInvPortfolioTotal(parseFloat(value) || 0);
   renderInvestments();
-}
-
-/* ---- Allocation breakdown card ---- */
-function renderInvAllocation(investments, total) {
-  const container = document.getElementById('inv-allocation-list');
-  if (!container) return;
-
-  if (!investments.length || total === 0) {
-    container.innerHTML = '<p class="empty-sub" style="text-align:center;padding:1rem 0;">אין נתונים לתצוגה</p>';
-    return;
-  }
-
-  const sorted = investments.slice().sort(
-    (a, b) => (parseFloat(b.currentValue) || 0) - (parseFloat(a.currentValue) || 0)
-  );
-
-  const sumCurrent = investments.reduce(
-    (s, inv) => s + (parseFloat(inv.currentValue) || 0), 0
-  );
-  const cash = total - sumCurrent;
-
-  // Color palette matching chart colors
-  const colors = [
-    '#38bdf8','#22c55e','#f59e0b','#a78bfa','#fb7185',
-    '#34d399','#60a5fa','#fbbf24','#c084fc','#f87171',
-    '#2dd4bf','#818cf8',
-  ];
-
-  const rows = sorted.map((inv, i) => {
-    const val    = parseFloat(inv.currentValue) || 0;
-    const pct    = (val / total) * 100;
-    const color  = colors[i % colors.length];
-    return `<div class="inv-alloc-row">
-      <div class="inv-alloc-row-header">
-        <div class="inv-alloc-row-left">
-          <span class="inv-alloc-dot" style="background:${color}"></span>
-          <span class="inv-alloc-ticker">${escHtml(inv.ticker || '—')}</span>
-        </div>
-        <div class="inv-alloc-row-right">
-          <span class="inv-alloc-amount">$${fmt(val)}</span>
-          <span class="inv-alloc-pct-badge">${pct.toFixed(1)}%</span>
-        </div>
-      </div>
-      <div class="inv-progress-track">
-        <div class="inv-progress-bar" style="width:${Math.min(pct, 100).toFixed(2)}%;background:${color}"></div>
-      </div>
-    </div>`;
-  });
-
-  // Add cash row if total > sum
-  if (cash > 0.01) {
-    const cashPct = (cash / total) * 100;
-    rows.push(`<div class="inv-alloc-row">
-      <div class="inv-alloc-row-header">
-        <div class="inv-alloc-row-left">
-          <span class="inv-alloc-dot" style="background:#64748b"></span>
-          <span class="inv-alloc-ticker" style="color:var(--text-muted)">מזומן / אחר</span>
-        </div>
-        <div class="inv-alloc-row-right">
-          <span class="inv-alloc-amount">$${fmt(cash)}</span>
-          <span class="inv-alloc-pct-badge" style="color:var(--text-muted);background:rgba(100,116,139,.15)">${cashPct.toFixed(1)}%</span>
-        </div>
-      </div>
-      <div class="inv-progress-track">
-        <div class="inv-progress-bar" style="width:${Math.min(cashPct, 100).toFixed(2)}%;background:#64748b"></div>
-      </div>
-    </div>`);
-  }
-
-  container.innerHTML = rows.join('');
 }
 
 /* ---- Modal ---- */
