@@ -50,7 +50,7 @@
     width: 72px;
     height: 72px;
     border-radius: 50%;
-    background: #111;
+    background: #fff;
     border: 2.5px solid #c8a84b;
     box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 0 0 1px rgba(200,168,75,0.3);
     overflow: hidden;
@@ -471,25 +471,5 @@
   <a href="tel:0586275975">רז — 058-6275975</a>
   <a href="tel:0508244162">אייל — 050-8244162</a>
 </div>
-<script>
-window.addEventListener('load', function() {
-  var img = document.querySelector('.logo-badge img');
-  if (!img) return;
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  ctx.drawImage(img, 0, 0);
-  var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  for (var i = 0; i < data.data.length; i += 4) {
-    var r = data.data[i], g = data.data[i+1], b = data.data[i+2];
-    if (r > 215 && g > 215 && b > 215) {
-      data.data[i+3] = 0;
-    }
-  }
-  ctx.putImageData(data, 0, 0);
-  img.src = canvas.toDataURL('image/png');
-});
-</script>
 </body>
 </html>
