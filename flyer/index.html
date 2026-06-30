@@ -244,17 +244,30 @@
     letter-spacing: 3px;
     text-transform: uppercase;
     color: rgba(255,255,255,0.3);
-    margin-bottom: 14px;
-    display: block;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .panel-label svg { flex-shrink: 0; }
+
+  .areas-title {
+    font-family: 'Rubik', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #c8a84b;
+    margin-bottom: 12px;
+    line-height: 1;
   }
 
   .area-line {
     font-family: 'Rubik', sans-serif;
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 700;
     color: #fff;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     line-height: 1.2;
   }
 
@@ -315,13 +328,13 @@
 
   .contact-phone {
     font-family: 'Rubik', sans-serif;
-    font-size: 1.35rem;
-    font-weight: 900;
+    font-size: 1.25rem;
+    font-weight: 500;
     color: #fff;
     direction: ltr;
     display: block;
     text-decoration: none;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
 
   /* ── MOBILE STICKY ── */
@@ -408,9 +421,13 @@
   <div class="highlight-block">
     <div class="areas-panel">
       <span class="panel-label">
-        <svg width="11" height="13" viewBox="0 0 12 14" fill="none" style="margin-left:5px;vertical-align:middle"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="rgba(255,255,255,0.3)"/></svg>
+        <svg width="9" height="10" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="rgba(255,255,255,0.3)"/></svg>
         אזורי שירות
       </span>
+      <div class="areas-title">
+        <svg width="22" height="26" viewBox="0 0 12 14" fill="none" style="margin-left:8px;vertical-align:middle"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="#c8a84b"/></svg>
+        איזור הגליל
+      </div>
       <div class="area-line">מ.א. משגב</div>
       <div class="area-line">קריית שמונה</div>
       <div class="area-line">מ.א. גליל עליון</div>
