@@ -45,12 +45,13 @@
     justify-content: space-between;
   }
 
-  .brand {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
+  .brand-inline {
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    font-weight: 900;
+    color: #c8a84b;
+    display: block;
+    line-height: 1;
+    letter-spacing: -0.5px;
   }
 
   .big-title {
@@ -317,9 +318,8 @@
   <!-- TOP: headline + photo side by side -->
   <div class="top-block">
     <div class="top-headline">
-      <span class="brand">א.ר · בית וגינה</span>
       <div class="big-title">
-        מומחים<em>לבית<br>ולגינה.</em>
+        <span class="brand-inline">א.ר</span><br>מומחים<em>לבית<br>ולגינה.</em>
       </div>
     </div>
     <div class="top-photo-wrap">
@@ -338,7 +338,7 @@
   <!-- SERVICES -->
   <div class="services-block">
     <div class="svc">
-      <span class="svc-label">תחום 01</span>
+      <span class="svc-label"></span>
       <div class="svc-title">גינון</div>
       <ul class="svc-list">
         <li>שיקום ועיצוב גינות</li>
@@ -348,7 +348,7 @@
       </ul>
     </div>
     <div class="svc">
-      <span class="svc-label">תחום 02</span>
+      <span class="svc-label"></span>
       <div class="svc-title">הנדימן</div>
       <ul class="svc-list">
         <li>דקים ופרגולות</li>
@@ -362,15 +362,15 @@
   <!-- AREAS + QUOTE -->
   <div class="highlight-block">
     <div class="areas-panel">
-      <span class="panel-label">אזורי שירות</span>
+      <span class="panel-label">
+        <svg width="11" height="13" viewBox="0 0 12 14" fill="none" style="margin-left:5px;vertical-align:middle"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="rgba(255,255,255,0.3)"/></svg>
+        אזורי שירות
+      </span>
       <div class="area-line">מ.א. משגב</div>
       <div class="area-line">קריית שמונה</div>
       <div class="area-line">מ.א. גליל עליון</div>
     </div>
     <div class="quote-panel">
-      <div class="quote-mark">"</div>
-      <div class="quote-text">עבודה מקצועית ואמינה מהגינה עד הבית</div>
-      <div class="quote-sub">שנים של ניסיון בשטח</div>
     </div>
   </div>
 
