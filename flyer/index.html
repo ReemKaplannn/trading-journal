@@ -234,13 +234,11 @@
   }
 
   .svc-list li::before {
-    content: '';
-    display: block;
-    width: 12px;
-    height: 1px;
-    background: #c8a84b;
+    content: '◆';
+    color: #c8a84b;
+    font-size: 7px;
     flex-shrink: 0;
-    margin-top: 7px;
+    margin-top: 3px;
   }
 
   /* ── QUOTE / HIGHLIGHT BLOCK ── */
@@ -273,7 +271,7 @@
 
   .areas-title {
     font-family: 'Rubik', sans-serif;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 900;
     color: #c8a84b;
     margin-bottom: 12px;
@@ -282,10 +280,10 @@
 
   .area-line {
     font-family: 'Rubik', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 800;
     color: #fff;
-    padding: 4px 0;
+    padding: 5px 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
     line-height: 1.2;
   }
@@ -294,11 +292,40 @@
 
   .quote-panel {
     background: #c8a84b;
-    padding: 20px 18px;
+    padding: 18px 16px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 10px;
+    gap: 0;
+  }
+
+  .quote-panel .contact-person {
+    padding: 8px 0;
+  }
+
+  .quote-panel .contact-name {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.45);
+    margin-bottom: 2px;
+  }
+
+  .quote-panel .contact-phone {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #000;
+    direction: ltr;
+    display: block;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+  }
+
+  .contact-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.15);
+    margin: 2px 0;
   }
 
   .quote-mark {
@@ -449,18 +476,15 @@
       <div class="area-line">מ.א. גליל עליון</div>
     </div>
     <div class="quote-panel">
-    </div>
-  </div>
-
-  <!-- CONTACT BAR -->
-  <div class="contact-bar">
-    <div class="contact-person">
-      <div class="contact-name">רז קפלן</div>
-      <a href="tel:0586275975" class="contact-phone" dir="ltr">058-627-5975</a>
-    </div>
-    <div class="contact-person">
-      <div class="contact-name">אייל זך</div>
-      <a href="tel:0508244162" class="contact-phone" dir="ltr">050-824-4162</a>
+      <div class="contact-person">
+        <div class="contact-name">רז קפלן</div>
+        <a href="tel:0586275975" class="contact-phone" dir="ltr">058-627-5975</a>
+      </div>
+      <div class="contact-divider"></div>
+      <div class="contact-person">
+        <div class="contact-name">אייל זך</div>
+        <a href="tel:0508244162" class="contact-phone" dir="ltr">050-824-4162</a>
+      </div>
     </div>
   </div>
 
